@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  margin: 0;
+}
+
+body
+{
+  font-family: 'Open Sans', sans-serif;
+}
+
+header{
+  top: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 2rem;
+  background-color: transparent;
+  z-index: 1;  
+}
+
+nav a{
+  margin: 0 2rem;
+  text-decoration: none;
+}
+
+
+nav a:hover{
+  color: #424244;
+}
+
+header .nav-btn {
+  padding: 5px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  outline: none;
+  visibility: hidden;
+  opacity: 0;
+  font-size: 1.5rem;
+  color: #EF5B2C;
+}
+
+
+@media only screen and (min-width: 100px) {
+  header .nav-btn {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  header nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    background-color: #EF5B2C;
+    color: white;
+    transition: 1ms;
+    transform: translateY(-100vh);
+    
+  }
+  header .responsive_bar{
+    transform:none
+  }
+  
+  nav .nav-close-btn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    color : white;
+  }
+  
+  nav a{
+    font-size: 2.5rem;
+    font-weight: 500;
+  }
+}
+
+.cinput {
+  padding: 8px;
+  outline: none;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  margin-top: 5px;
+  margin-right: 2%;
+}
+
+.ctextarea{
+  padding: 8px;
+  outline: none;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  height: 15vh;
+  margin-top: 5px;
+  margin-right: 2%;
+  resize: none;
+}
+.cSelect{
+  padding: 8px;
+  outline: none;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  margin-top: 5px;
+  margin-right: 2%;
+}
+.atextarea{
+  padding: 8px;
+  outline: none;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  margin-top: 5px;
+  margin-right: 2%;
+  resize: none;
+}
+
+.cbutton{
+  background-color: #EF5B2C;
+  padding: 8px;
+  outline: none;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  font-size: 14px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.rbutton{
+  background-image: radial-gradient(circle, #165f3c, #024225);
+  padding: 8px;
+  outline: none;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  font-size: 14px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+.pibutton{
+  background-color: #EF5B2C;
+  padding: 8px;
+  outline: none;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  font-size: 14px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+.cparallex{
+  background-image: url("https://res.cloudinary.com/dtlrrlpag/image/upload/v1673622957/Next%20Studio/Apply_BG_blgu0e.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #EF5B2C !important; 
+  list-style: none;
+  font-weight: 500;
+}
+.ant-tabs-tab-btn:hover{
+color: #EF5B2C;
+}
+
+.ant-tabs-ink-bar {
+height: 5px;
+background: none !important;
+}
+
+.team .slick-slide > div {
+  margin: 0 40px;
+}
+
+.team .slick-slide > div:nth-child(1){
+  margin-left: 0;
+}
+
+.team .slick-dots li button::before{
+color: #EF5B2C;
+font-size: 12px;
+}
+
+.team .slick-dots li.slick-active button:before {
+color: #102540;
+}
+
+.team .slick-list {
+  margin-right: -40px;
+}
+
+.slick-prev {
+visibility: hidden !important;
+}
+.slick-next {
+visibility: hidden !important;
+}
+
+.icon_1 {
+  animation: icon_1 1s infinite;
+}
+
+@keyframes icon_1 {
+  0%{
+    opacity: 1;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 0.5;
+  }
+}
+
+.icon_2 {
+  animation: icon_2 1s infinite;
+}
+
+@keyframes icon_2 {
+  0%{
+    opacity: 0.5;
+  }
+  50%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 0.5;
+  }
+}
+
+.icon_3 {
+  animation: icon_3 1s infinite;
+}
+
+@keyframes icon_3 {
+  0%{
+    opacity: 0.5;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 1;
+  }
+}
+
+.popout {
+  position: fixed;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+}
