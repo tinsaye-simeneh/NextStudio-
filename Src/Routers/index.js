@@ -1,0 +1,24 @@
+const express = require('express')
+const AdminRouter = require('./AdminRouter')
+const VideoRouter = require('./VideoRouter')
+const QuoteRouter = require('./QuoteRouter')
+const ContactRouter = require('./ContactRouter')
+const ServiceRouter = require('./ServiceRouter')
+const AboutRouter = require('./AboutRouter')
+const ClientRouter = require('./ClientRouter')
+const TeamRouter = require('./TeamRouter')
+const PortfolioRouter = require('./PortfolioRouter')
+
+const router = express.Router()
+
+router.use('/admin',AdminRouter)
+router.use('/video-banner',VideoRouter)
+router.use('/quote',QuoteRouter)
+router.use('/contact', ContactRouter)
+router.use('/service',ServiceRouter)
+router.use('/about',AboutRouter)
+router.use('/client',ClientRouter)
+router.use('/team',TeamRouter)
+router.use('/portfolio',PortfolioRouter)
+
+module.exports = router
