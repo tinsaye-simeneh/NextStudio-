@@ -39,6 +39,21 @@ const AdminServiceManagement = () => {
    
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Check if selectedItemforEdit exists and has an ID
+        if (!selectedItemforEdit) {
+            message.error('No service selected for update')
+            return
+        }
+        
+        // Try both _id and id properties
+        const serviceId = selectedItemforEdit._id || selectedItemforEdit.id
+        
+        if (!serviceId) {
+            message.error('Service ID is missing')
+            return
+        }
+        
         try{
             const config = {
                 headers: {
@@ -46,7 +61,7 @@ const AdminServiceManagement = () => {
                 },
             }
             dispatch(showloading())
-            const {data} = await axios.patch(`${URL}/api/NextStudio/service/` + selectedItemforEdit._id,{
+            const {data} = await axios.patch(`${URL}/api/NextStudio/service/${serviceId}`,{
                 service_icon,service_title,service_description
             },config)
             dispatch(hiddenloading())
@@ -56,25 +71,27 @@ const AdminServiceManagement = () => {
                 setServiceTitle("")
                 setServiceDescription("")
                 setPreview(null)
+                setSelectedItemforEdit(null)
                 message.success('Services Updated Successfuly')
                 dispatch(hiddenloading())
                 dispatch(ReloadData(true))
             }
         }catch(err){
             dispatch(hiddenloading())
-            message.error(err.message)
+            message.error(err.response?.data?.message || err.message || 'Failed to update service')
         }
     } 
 
     useEffect(() => {
         if(selectedItemforEdit){
-            setServiceIcon(selectedItemforEdit.service_icon)
+            // Handle new API format with service_icon_url or old format with service_icon
+            const iconUrl = selectedItemforEdit.service_icon_url || 
+                          (typeof selectedItemforEdit.service_icon === 'string' 
+                              ? selectedItemforEdit.service_icon 
+                              : selectedItemforEdit.service_icon?.url);
+            setServiceIcon(selectedItemforEdit.service_icon_url || selectedItemforEdit.service_icon || '')
             setServiceTitle(selectedItemforEdit.service_title)
             setServiceDescription(selectedItemforEdit.service_description)
-            // Handle both string and object formats for service_icon
-            const iconUrl = typeof selectedItemforEdit.service_icon === 'string' 
-                ? selectedItemforEdit.service_icon 
-                : selectedItemforEdit.service_icon?.url;
             setPreview(iconUrl || '')
         }else{
             setPreview('')
@@ -90,13 +107,15 @@ const AdminServiceManagement = () => {
             <div className="flex flex-col">
                 <div className="flex flex-wrap justify-center items-center gap-10">
                     {serviceData && serviceData.length > 0 && serviceData.map((data, index) => {
-                        // Handle both string and object formats for service_icon
-                        const iconUrl = typeof data.service_icon === 'string' 
-                            ? data.service_icon 
-                            : data.service_icon?.url;
+                        // Handle new API format with service_icon_url or old format with service_icon
+                        const iconUrl = data.service_icon_url || 
+                                      (typeof data.service_icon === 'string' 
+                                          ? data.service_icon 
+                                          : data.service_icon?.url);
+                        const itemId = data.id || data._id;
                         
                         return (
-                            <div key={data._id || index} className="w-[285px] h-[385px] border-2 rounded-md">
+                            <div key={itemId || index} className="w-[285px] h-[385px] border-2 rounded-md">
                                 {iconUrl && (
                                     <img className=" border-b-2 rounded-md" src={iconUrl} alt="services icon"/>
                                 )}
@@ -109,7 +128,7 @@ const AdminServiceManagement = () => {
                     })}
                 </div>
             </div>
-            <Modal visible={showAddEditModal}  footer={null} onCancel={() => {setShowAddEditModal(false); setSelectedItemforEdit(null)}}>
+            <Modal open={showAddEditModal}  footer={null} onCancel={() => {setShowAddEditModal(false); setSelectedItemforEdit(null)}}>
                 <h1 className="text-center text-xl uppercase font-semibold mt-5 mb-5">Edit Services</h1>
                 <div className="w-full h-[200px] flex justify-center items-center">
                 <img className=" h-[180px] object-cover border-2 rounded-md"  src={preview === null ? 'https://res.cloudinary.com/dtlrrlpag/image/upload/v1685707236/Next%20Studio/placeholder-image-gray-3x2_po4o0q.png' : preview}  alt=""/>

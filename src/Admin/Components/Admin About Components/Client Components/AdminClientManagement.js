@@ -44,7 +44,7 @@ const AdminClientManagement = () => {
                 },
             }
             dispatch(showloading())
-            const data = await axios.delete(`${URL}/api/NextStudio/client/`+ id,config)
+            const data = await axios.delete(`${URL}/api/NextStudio/client/${id}`,config)
             dispatch(hiddenloading())
             if(data.data.success === true){
                 message.success('Client Deleted Successfuly')
@@ -96,18 +96,20 @@ const AdminClientManagement = () => {
                 <hr className="mt-5 mb-5"/>
                 <div className="flex flex-wrap gap-5">
                     {clientData && clientData.length > 0 && clientData.map((data, index) => {
-                        // Handle both string and object formats for client_image
-                        const imageUrl = typeof data.client_image === 'string' 
-                            ? data.client_image 
-                            : data.client_image?.url;
+                        // Handle new API format with client_image_url or old format with client_image
+                        const imageUrl = data.client_image_url || 
+                                       (typeof data.client_image === 'string' 
+                                           ? data.client_image 
+                                           : data.client_image?.url);
+                        const itemId = data.id || data._id;
                         
                         return (
-                            <div key={data._id || index} className="flex flex-col w-[300px] h-[190px] border-2 rounded">
+                            <div key={itemId || index} className="flex flex-col w-[300px] h-[190px] border-2 rounded">
                                 {imageUrl && (
                                     <img className=" w-[300px] h-[150px] " src={imageUrl} alt="Clients" />
                                 )}
                                 <button onClick={() => {
-                                    setDeleteId(data._id)
+                                    setDeleteId(itemId)
                                     setShowDeleteModal(true)
                                 }} className="bg-red-500 mt-[2px] text-white w-full p-2">Delete</button>
                             </div>

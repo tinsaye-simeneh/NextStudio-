@@ -2,15 +2,14 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../Components/Sidebar Components/Sidebar"
-import { Tabs } from "antd"
-import TabPane from "antd/es/tabs/TabPane"
+import { Tabs, Spin } from "antd"
 import { reset } from "../../API/Auth/authSlice"
 import ScreenError from "./ScreenError"
 import AdminPortfolioManagement from "../Components/Admin Portfolio Components/AdminPortfolioManagement"
 
 const AdminPortfolioPage = () => {
 
-    const { portfolioData, portfolioLengthData } = useSelector((state) => state.root)
+    const { portfolioData, portfolioLengthData, isLoading } = useSelector((state) => state.root)
 
     useEffect(() => {
         document.title = "Admin Portfolio Page Management - Next Studio"
@@ -52,15 +51,21 @@ const AdminPortfolioPage = () => {
         <div>
             {!show ? <ScreenError/> : <div className="flex">
                 <Sidebar/>
-               {portfolioData && portfolioLengthData && ( 
-                    <div className="flex flex-col w-full px-20 py-10 ml-[260px]">
-                        <Tabs  defaultActiveKey="1">
-                            <TabPane tab='Portfolio' key="1">
-                                <AdminPortfolioManagement/>
-                            </TabPane>
-                        </Tabs>
-                    </div>   
-               )}
+                <div className="flex flex-col w-full px-20 py-10 ml-[260px]">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-[400px]">
+                            <Spin size="large" />
+                        </div>
+                    ) : portfolioData && portfolioLengthData ? (
+                        <Tabs defaultActiveKey="1" items={[
+                            {
+                                key: "1",
+                                label: "Portfolio",
+                                children: <AdminPortfolioManagement/>
+                            }
+                        ]} />
+                    ) : null}
+                </div>
             </div>}
         </div>
     )

@@ -52,7 +52,7 @@ const AdminVideoManagement = () => {
                 },
             }
             dispatch(showloading())
-            const {data} = await axios.patch(`${URL}/api/NextStudio/video-banner`,{banner_video},config)
+            const {data} = await axios.patch(`${URL}/api/NextStudio/video-banner/`,{banner_video},config)
                 
                 if(data.success === true){
                     dispatch(showloading())

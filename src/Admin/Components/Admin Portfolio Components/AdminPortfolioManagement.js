@@ -78,7 +78,12 @@ const AdminPortfolioManagement = () => {
             // Filter out empty video URLs
             const filteredVideos = project_videos.filter(video => video.trim() !== '')
             if(selectedItemforEdit){
-                const {data} = await axios.patch(`${URL}/api/NextStudio/portfolio/`+ selectedItemforEdit._id,{
+                const portfolioId = selectedItemforEdit._id || selectedItemforEdit.id
+                if (!portfolioId) {
+                    message.error('Portfolio ID is missing')
+                    return
+                }
+                const {data} = await axios.patch(`${URL}/api/NextStudio/portfolio/${portfolioId}`,{
                     project_name,project_category,project_description1,project_date,project_image,project_video: filteredVideos,company_name
                 },config)
                 dispatch(hiddenloading())
@@ -168,8 +173,13 @@ const AdminPortfolioManagement = () => {
                   Authorization: `Bearer ${token}`,
                 },
             }
+            const portfolioId = selectedItemforEdit?._id || selectedItemforEdit?.id
+            if (!portfolioId) {
+                message.error('Portfolio ID is missing')
+                return
+            }
             dispatch(showloading())
-            const data = await axios.delete(`${URL}/api/NextStudio/portfolio/${selectedItemforEdit._id}/`+id ,config)
+            const data = await axios.delete(`${URL}/api/NextStudio/portfolio/${portfolioId}/${id}`,config)
             dispatch(hiddenloading())
             if(data.data.success === true)
                 setShowAddEditModal(false)
@@ -192,7 +202,13 @@ const AdminPortfolioManagement = () => {
             }
             dispatch(showloading())
             if(selectedItemforEdit){
-                const {data} = await axios.patch(`${URL}/api/NextStudio/portfolio/image/`+ selectedItemforEdit._id,{
+                const portfolioId = selectedItemforEdit._id || selectedItemforEdit.id
+                if (!portfolioId) {
+                    message.error('Portfolio ID is missing')
+                    dispatch(hiddenloading())
+                    return
+                }
+                const {data} = await axios.patch(`${URL}/api/NextStudio/portfolio/image/${portfolioId}`,{
                     project_image
                 },config)
                 dispatch(hiddenloading())
@@ -220,7 +236,7 @@ const AdminPortfolioManagement = () => {
                 },
             }
             dispatch(showloading())
-            const data = await axios.delete(`${URL}/api/NextStudio/portfolio/` + id,config)
+            const data = await axios.delete(`${URL}/api/NextStudio/portfolio/${id}`,config)
             dispatch(hiddenloading())
             if(data.data.success === true)
                 message.success('Portfolio Delete Successfuly')
@@ -266,7 +282,7 @@ const AdminPortfolioManagement = () => {
                 </div>
             </div>
             <Modal 
-                visible={showAddEditModal}  
+                open={showAddEditModal}  
                 footer={null} 
                 maskClosable={false}
                 keyboard={false}
@@ -345,8 +361,8 @@ const AdminPortfolioManagement = () => {
                 </div>
             </form>
             <div className="flex flex-wrap gap-5 mt-5 justify-center items-center">
-                    {preview.map((data) => (
-                        <div className=" w-[200px] object-contain">
+                    {preview.map((data, index) => (
+                        <div key={data._id || data.url || index} className=" w-[200px] object-contain">
                             <img className="h-[135px] object-cover" src={selectedItemforEdit ? data.url : data} alt="pic"/>
                             <button className={selectedItemforEdit ? 'text-red-500 ml-[180px] -mt-[130px] absolute z-10' : 'hidden'} onClick={() => {
                                 handleImageDelete(data._id)
@@ -355,8 +371,8 @@ const AdminPortfolioManagement = () => {
                     ))}
             </div>
             <div className={selectedItemforEdit ? "flex flex-wrap gap-5 mt-5 justify-center items-center" : "hidden"}>
-                    {newPreview.map((data) => (
-                        <div className=" w-[200px] object-contain">
+                    {newPreview.map((data, index) => (
+                        <div key={index} className=" w-[200px] object-contain">
                             <img className="h-[135px] object-cover" src={data} alt="pic"/>
                         </div>
                     ))}
@@ -371,7 +387,7 @@ const AdminPortfolioManagement = () => {
                 </form>
             </div>    
             </Modal>
-            <Modal visible={showDeleteModal} footer={null} closable={false} centered={true} onCancel={() => {setShowDeleteModal(false); setDeleteId(null)}}>
+            <Modal open={showDeleteModal} footer={null} closable={false} centered={true} onCancel={() => {setShowDeleteModal(false); setDeleteId(null)}}>
                     <h1 className="text-center text-2xl">Are you sure want to delete?</h1>
                     <div className="flex justify-center items-center gap-5 mt-5">
                         <button className="bg-Secondary w-[80px] p-1 rounded text-white" onClick={() => {handleDelete(deleteID); setShowDeleteModal(false)}}>Ok</button>

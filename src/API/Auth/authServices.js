@@ -60,7 +60,7 @@ const updatePassword = async (userData,token) => {
 
   
   const response = await axios.patch(
-    `${URL}/api/NextStudio/admin/changepassword`,
+    `${URL}/api/NextStudio/auth/password`,
     userData,config
   );
 

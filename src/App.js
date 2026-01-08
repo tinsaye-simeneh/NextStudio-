@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes , Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes , Route, useLocation } from 'react-router-dom';
 import './App.css';
 import HomePage from './Clients/Screens/HomePage';
 import AboutPage from './Clients/Screens/AboutPage';
@@ -33,7 +33,9 @@ import {URL} from './Url/Url'
 import LoadingPage from './Clients/Screens/LoadingPage';
 import MMEPage from './Clients/Screens/MMEPage';
 
-function App() {
+function AppContent() {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admindashboard') || location.pathname.startsWith('/administrator')
 
   var hours = 12
   var now  = new Date().getTime()
@@ -275,8 +277,8 @@ function App() {
   },[reloadData, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
 
   return (
-    <Router>
-      {isLoading ? <LoadingPage/> : null}
+    <>
+      {isLoading && !isAdminRoute ? <LoadingPage/> : null}
       <div className="App">
         <Routes>
           <Route exact path='/' element={<HomePage/>}/>
@@ -294,6 +296,14 @@ function App() {
           <Route path='*' element={<PageNotFound/>}/>
         </Routes>
       </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

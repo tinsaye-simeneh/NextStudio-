@@ -48,7 +48,7 @@ const AdminTeamManagement = () => {
                 },
             }
             dispatch(showloading())
-            const data = await axios.delete(`${URL}/api/NextStudio/team/`+ id,config)
+            const data = await axios.delete(`${URL}/api/NextStudio/team/${id}`,config)
             dispatch(hiddenloading())
             if(data.data.success === true){
                 message.success('Team Deleted Successfuly')
@@ -74,8 +74,13 @@ const AdminTeamManagement = () => {
             }else{
             
             if(selectedItemforEdit){
+                const teamId = selectedItemforEdit._id || selectedItemforEdit.id
+                if (!teamId) {
+                    message.error('Team member ID is missing')
+                    return
+                }
                 dispatch(showloading())
-                const {data} = await axios.patch(`${URL}/api/NextStudio/team/`+ selectedItemforEdit._id,{full_name,work_title,team_image},config)
+                const {data} = await axios.patch(`${URL}/api/NextStudio/team/${teamId}`,{full_name,work_title,team_image},config)
                 if(data.success === true){
                     setShowAddEditModal(false)
                     setFullName('');
@@ -114,11 +119,12 @@ const AdminTeamManagement = () => {
         if(selectedItemforEdit){
             setFullName(selectedItemforEdit.full_name)
             setWorkTitle(selectedItemforEdit.work_title)
-            setTeamImage(selectedItemforEdit.team_image)
-            // Handle both string and object formats for team_image
-            const imageUrl = typeof selectedItemforEdit.team_image === 'string' 
-                ? selectedItemforEdit.team_image 
-                : selectedItemforEdit.team_image?.url;
+            // Handle new API format with team_image_url or old format with team_image
+            const imageUrl = selectedItemforEdit.team_image_url || 
+                           (typeof selectedItemforEdit.team_image === 'string' 
+                               ? selectedItemforEdit.team_image 
+                               : selectedItemforEdit.team_image?.url);
+            setTeamImage(selectedItemforEdit.team_image_url || selectedItemforEdit.team_image || '')
             setPreview(imageUrl || null)
         }
         else{
@@ -142,13 +148,15 @@ const AdminTeamManagement = () => {
                 <hr className="mt-5 mb-5"/>
                 <div className="flex flex-wrap gap-5">
                     {teamData && teamData.length > 0 && teamData.map((data, index) => {
-                        // Handle both string and object formats for team_image
-                        const imageUrl = typeof data.team_image === 'string' 
-                            ? data.team_image 
-                            : data.team_image?.url;
+                        // Handle new API format with team_image_url or old format with team_image
+                        const imageUrl = data.team_image_url || 
+                                       (typeof data.team_image === 'string' 
+                                           ? data.team_image 
+                                           : data.team_image?.url);
+                        const itemId = data.id || data._id;
                         
                         return (
-                            <div key={data._id || index} className="w-[255px] h-[400px] border-2 rounded mb-5">
+                            <div key={itemId || index} className="w-[255px] h-[400px] border-2 rounded mb-5">
                                 <div className="flex flex-col">
                                     {imageUrl && (
                                         <img className="h-[250px] w-full object-cover rounded mb-2" src={imageUrl} alt="team"/>
@@ -162,7 +170,7 @@ const AdminTeamManagement = () => {
                                         setShowAddEditModal(true)
                                     }}>Update</button>
                                     <button onClick={()=> {
-                                        setDeleteId(data._id)
+                                        setDeleteId(itemId)
                                         setShowDeleteModal(true)             
                                     }} className="bg-red-500 text-white w-[100px] py-2 px-5 rounded">Delete</button>
                                 </div>
