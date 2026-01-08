@@ -28,7 +28,7 @@ import {
 } from './API/Server/rootSlice'
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useCallback } from 'react';
 import {URL} from './Url/Url'
 import LoadingPage from './Clients/Screens/LoadingPage';
 import MMEPage from './Clients/Screens/MMEPage';
@@ -40,7 +40,6 @@ function App() {
   var setupTime = localStorage.getItem('setupTime')
 
   const today = new Date();
-  const year = today.getFullYear();
 
   if(setupTime === null){
     localStorage.setItem('setupTime',now)
@@ -70,7 +69,7 @@ function App() {
 
   // Banner Video For Home Page
 
-  const getBannerVideo = async () => {
+  const getBannerVideo = useCallback(async () => {
 
     try{
       dispatch(showloading())
@@ -81,17 +80,17 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!videoBannerData){
       getBannerVideo()
     }
-  },[videoBannerData])
+  },[videoBannerData, getBannerVideo])
 
   // get all slogan data
 
-  const getSlonganData = async () =>{
+  const getSlonganData = useCallback(async () =>{
     try{
       dispatch(showloading())
       const responce = await axios.get(`${URL}/api/NextStudio/quote`)
@@ -101,17 +100,17 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!quoteData){
       getSlonganData()
     }
-  },[quoteData])
+  },[quoteData, getSlonganData])
 
   //get all contact Data
 
-  const getContactData = async () => {
+  const getContactData = useCallback(async () => {
     try{
       dispatch(showloading())
       const responce = await axios.get(`${URL}/api/NextStudio/contact`)
@@ -121,17 +120,17 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!contactData){
       getContactData()
     }
-  },[contactData])
+  },[contactData, getContactData])
 
-  // get all Service Data 
+  // get all Service Data
 
-  const getServiceData = async () => {
+  const getServiceData = useCallback(async () => {
     try{
       dispatch(showloading())
       const responce = await axios.get(`${URL}/api/NextStudio/service`)
@@ -141,17 +140,17 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!serviceData){
       getServiceData()
     }
-  },[serviceData])
+  },[serviceData, getServiceData])
 
   // get all About Data
 
-  const getAboutData= async () => {
+  const getAboutData= useCallback(async () => {
     try{
       dispatch(showloading())
       const responce = await axios.get(`${URL}/api/NextStudio/about`)
@@ -161,15 +160,15 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!aboutData){
       getAboutData()
     }
-  },[aboutData])
+  },[aboutData, getAboutData])
 
-  const getClientData = async () => {
+  const getClientData = useCallback(async () => {
     try{
       dispatch(showloading())
       const responce = await axios.get(`${URL}/api/NextStudio/client`)
@@ -179,15 +178,15 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!clientData){
       getClientData()
     }
-  },[clientData])
+  },[clientData, getClientData])
 
-  const getTeamData = async () => {
+  const getTeamData = useCallback(async () => {
     try{
       dispatch(hiddenloading())
       const responce = await axios.get(`${URL}/api/NextStudio/team`)
@@ -197,17 +196,31 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
+
+  const getPortfolioById = useCallback(async (id) => {
+    try{
+      dispatch(showloading())
+      const responce = await axios.get(`${URL}/api/NextStudio/portfolio/${id}`)
+      dispatch(setPortfolioData([responce.data.portfolio])) // Store as array for compatibility
+      dispatch(ReloadData(false))
+      dispatch(hiddenloading())
+      return responce.data.portfolio
+    }catch(err){
+      dispatch(hiddenloading())
+      return null
+    }
+  }, [dispatch])
 
   useEffect(() => {
     if(!teamData){
       getTeamData()
     }
-  },[teamData])
+  },[teamData, getTeamData])
 
   // get all portfolio data
 
-  const getPortfolioData = async () => {
+  const getPortfolioData = useCallback(async () => {
     try{
       dispatch(hiddenloading())
       const responce = await axios.get(`${URL}/api/NextStudio/portfolio`)
@@ -217,17 +230,17 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
   
   useEffect(() => {
     if(!portfolioData){
       getPortfolioData()
     }
-  },[portfolioData])
+  },[portfolioData, getPortfolioData])
 
   // get all portfolio data length
 
-  const getPortfolioLengthData = async () => {
+  const getPortfolioLengthData = useCallback(async () => {
     try{
       dispatch(hiddenloading())
       const responce = await axios.get(`${URL}/api/NextStudio/portfolio/length`)
@@ -237,13 +250,13 @@ function App() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }
+  }, [dispatch])
 
   useEffect(() => {
     if(!portfolioLengthData){
       getPortfolioLengthData()
     }
-  },[portfolioLengthData])
+  },[portfolioLengthData, getPortfolioLengthData])
 
   //get all data when reload
 
@@ -259,7 +272,7 @@ function App() {
       getPortfolioData()
       getPortfolioLengthData()
     }
-  },[reloadData])
+  },[reloadData, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
 
   return (
     <Router>
