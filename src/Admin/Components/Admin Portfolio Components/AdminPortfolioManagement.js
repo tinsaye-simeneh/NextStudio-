@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaPlus } from "react-icons/fa";
 import JoditEditor from "jodit-react";
 import { ReloadData, hiddenloading, showloading } from "../../../API/Server/rootSlice";
 import { Modal, message } from "antd";
@@ -26,7 +26,7 @@ const AdminPortfolioManagement = () => {
     const [project_category,setProjectCategory] = useState('')
     const [project_description1,setProjectDescription1] = useState('')
     const [project_date,setProjectDate] = useState('')
-    const [project_video,setProjectVideo] = useState('')
+    const [project_videos,setProjectVideos] = useState([''])
     const [project_image,setProjectImage] = useState([])
     const [preview, setPreview] = useState([])
     const [newPreview,setNewPreview] = useState([])
@@ -41,7 +41,14 @@ const AdminPortfolioManagement = () => {
             setCompanyName(selectedItemforEdit.company_name)
             setProjectName(selectedItemforEdit.project_name)
             setProjectCategory(selectedItemforEdit.project_category)
-            setProjectVideo(selectedItemforEdit.project_video)
+            // Handle both array and string formats for videos
+            if(Array.isArray(selectedItemforEdit.project_video)){
+                setProjectVideos(selectedItemforEdit.project_video)
+            } else if(selectedItemforEdit.project_video){
+                setProjectVideos([selectedItemforEdit.project_video])
+            } else {
+                setProjectVideos([''])
+            }
             setProjectDescription1(selectedItemforEdit.project_description1)
             setProjectDate(selectedItemforEdit.project_date)
             setProjectImage(selectedItemforEdit.project_image)
@@ -53,7 +60,7 @@ const AdminPortfolioManagement = () => {
             setProjectCategory('')
             setProjectDescription1('')
             setProjectDate('')
-            setProjectVideo('')
+            setProjectVideos([''])
             setProjectImage([])
             setPreview([])
         }
@@ -68,9 +75,11 @@ const AdminPortfolioManagement = () => {
                 },
             }
             dispatch(showloading())
+            // Filter out empty video URLs
+            const filteredVideos = project_videos.filter(video => video.trim() !== '')
             if(selectedItemforEdit){
                 const {data} = await axios.patch(`${URL}/api/NextStudio/portfolio/`+ selectedItemforEdit._id,{
-                    project_name,project_category,project_description1,project_date,project_image,project_video,company_name
+                    project_name,project_category,project_description1,project_date,project_image,project_video: filteredVideos,company_name
                 },config)
                 dispatch(hiddenloading())
                 if(data.success === true){
@@ -81,7 +90,7 @@ const AdminPortfolioManagement = () => {
                     setProjectDate('')
                     setProjectImage([])
                     setProjectName('')
-                    setProjectVideo('')
+                    setProjectVideos([''])
                     setPreview([])
                     message.success('Portfolio Added Successfuly')
                     dispatch(hiddenloading())
@@ -89,7 +98,7 @@ const AdminPortfolioManagement = () => {
                 }
             }else{
                 const {data} = await axios.post(`${URL}/api/NextStudio/portfolio`,{
-                    project_name,project_category,project_description1,project_date,project_image,project_video,company_name
+                    project_name,project_category,project_description1,project_date,project_image,project_video: filteredVideos,company_name
                 },config)
                 dispatch(hiddenloading())
                 if(data.success === true){
@@ -100,7 +109,7 @@ const AdminPortfolioManagement = () => {
                     setProjectDate('')
                     setProjectImage([])
                     setProjectName('')
-                    setProjectVideo('')
+                    setProjectVideos([''])
                     setPreview([])
                     message.success('Portfolio Added Successfuly')
                     dispatch(hiddenloading())
@@ -256,18 +265,71 @@ const AdminPortfolioManagement = () => {
                        <Pagination page={page}/>
                 </div>
             </div>
-            <Modal visible={showAddEditModal}  footer={null} onCancel={() => {setShowAddEditModal(false); setSelectedItemforEdit(null)}}>
+            <Modal 
+                visible={showAddEditModal}  
+                footer={null} 
+                maskClosable={false}
+                keyboard={false}
+                onCancel={() => {setShowAddEditModal(false); setSelectedItemforEdit(null)}}
+            >
                 <h1 className="text-center text-xl uppercase font-semibold mt-5">{selectedItemforEdit ? 'Update Work' : 'Add Work'}</h1>
                 <form onSubmit={handleSubmit}>
                 <div className="flex flex-col">
-                <label className="font-bold mt-5">Company Name</label>
-                <input className="cinput w-full" type="text" onChange={(e) => setCompanyName(e.target.value)} value={company_name}/>
-                <label className="font-bold mt-5">Project Name</label>
-                <input className="cinput w-full" type="text" onChange={(e) => setProjectName(e.target.value)} value={project_name}/>
-                <label className="font-bold mt-5">Project Category</label>
-                <input className="cinput w-full" type="text" onChange={(e) => setProjectCategory(e.target.value)} value={project_category}/>
-                <label className="font-bold mt-5">Project Youtube Link</label>
-                <input className="cinput w-full" type="url" onChange={(e) => setProjectVideo(e.target.value)} value={project_video}/>
+                <div className="grid grid-cols-2 gap-4 mt-5">
+                    <div className="flex flex-col">
+                        <label className="font-bold">Company Name</label>
+                        <input className="cinput w-full" type="text" onChange={(e) => setCompanyName(e.target.value)} value={company_name}/>
+                    </div>
+                    <div className="flex flex-col">
+                        <label className="font-bold">Project Name</label>
+                        <input className="cinput w-full" type="text" onChange={(e) => setProjectName(e.target.value)} value={project_name}/>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-5">
+                    <div className="flex flex-col">
+                        <label className="font-bold">Project Category</label>
+                        <input className="cinput w-full" type="text" onChange={(e) => setProjectCategory(e.target.value)} value={project_category}/>
+                    </div>
+                    <div className="flex flex-col">
+                        <label className="font-bold">Project Date</label>
+                        <input className="cinput w-full" type="date" onChange={(e) => setProjectDate(e.target.value)} value={project_date}/>
+                    </div>
+                </div>
+                <label className="font-bold mt-5">Project Youtube Links</label>
+                {project_videos.map((video, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                        <input 
+                            className="cinput w-full" 
+                            type="url" 
+                            placeholder={`Video URL ${index + 1}`}
+                            onChange={(e) => {
+                                const newVideos = [...project_videos]
+                                newVideos[index] = e.target.value
+                                setProjectVideos(newVideos)
+                            }} 
+                            value={video}
+                        />
+                        {project_videos.length > 1 && (
+                            <button
+                                type="button"
+                                className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                                onClick={() => {
+                                    const newVideos = project_videos.filter((_, i) => i !== index)
+                                    setProjectVideos(newVideos.length > 0 ? newVideos : [''])
+                                }}
+                            >
+                                <FaTrash />
+                            </button>
+                        )}
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    className="bg-Secondary text-white px-4 py-2 rounded mt-2 flex items-center gap-2 hover:bg-opacity-90"
+                    onClick={() => setProjectVideos([...project_videos, ''])}
+                >
+                    <FaPlus /> Add Video
+                </button>
                 <label className="font-bold mt-5">Project Description</label>
                 <JoditEditor
                     className="mt-3"
@@ -275,8 +337,6 @@ const AdminPortfolioManagement = () => {
                     value={project_description1}
                     onChange={newContent => setProjectDescription1(newContent)}     
                 />
-                <label className="font-bold mt-5">Project Date</label>
-                <input className="cinput w-full" type="date" onChange={(e) => setProjectDate(e.target.value)} value={project_date}/>
                 <label className={selectedItemforEdit ? 'hidden' :'font-bold mt-5 mb-3'}>Project Images</label>
                 <input className={selectedItemforEdit ? 'hidden' :'cinput w-full'} type="file" multiple onChange={handleImageChange}/>
                 <div className="flex justify-end mt-3 gap-5 w-full">

@@ -18,9 +18,15 @@ const AdminAboutContent = () => {
     const editor = useRef(null);
 
     useEffect(() => { 
-        setIntroImage(aboutData.intro_image)
-        setPreview(aboutData.intro_image.url)
-        setAboutDesc(aboutData.about_desc)
+        if (aboutData) {
+            setIntroImage(aboutData.intro_image)
+            // Handle both string and object formats for intro_image
+            const imageUrl = typeof aboutData.intro_image === 'string' 
+                ? aboutData.intro_image 
+                : aboutData.intro_image?.url;
+            setPreview(imageUrl || null)
+            setAboutDesc(aboutData.about_desc || '')
+        }
     },[aboutData])
 
     const handleFileInputChange = (e) => {
