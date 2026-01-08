@@ -11,12 +11,12 @@ const AdminLoginPage = () => {
         document.title = "Admin Login - Next Studio"
     })
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: '',
       })
 
     
-      const { username, password } = formData
+      const { email, password } = formData
     
       const navigate = useNavigate()
       const dispatch = useDispatch()
@@ -59,12 +59,12 @@ const AdminLoginPage = () => {
       const onSubmit = (e) => {
         e.preventDefault()
 
-        if(username.length === 0 && password.length ===0){
+        if(email.length === 0 && password.length ===0){
             seterror(true)
         }
-        if(username && password){
+        if(email && password){
         const userData = {
-          username,
+          email,
           password,
         }
     
@@ -82,8 +82,8 @@ const AdminLoginPage = () => {
                 <form onSubmit={onSubmit}>
                     <div className="flex flex-col gap-5">
                         <div className="flex flex-col">
-                            <input className="cinput w-[297px]" type="text" placeholder="Username" name="username" value={username} onChange={onChange}/>
-                            <span className={`${error && username.length<=0 ? 'text-red-500': 'hidden'}`}>Please enter a username</span>
+                            <input className="cinput w-[297px]" type="email" placeholder="Email" name="email" value={email} onChange={onChange}/>
+                            <span className={`${error && email.length<=0 ? 'text-red-500': 'hidden'}`}>Please enter an email</span>
                         </div>
                         <div className="flex flex-col">
                             <div className="flex justify-end items-center">
