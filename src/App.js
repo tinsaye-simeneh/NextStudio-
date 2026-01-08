@@ -220,9 +220,12 @@ function AppContent() {
     }
   },[teamData, getTeamData])
 
-  // get all portfolio data
+  // get all portfolio data (only for client routes, not admin routes)
 
   const getPortfolioData = useCallback(async () => {
+    // Don't fetch on admin routes
+    if (isAdminRoute) return;
+    
     try{
       dispatch(hiddenloading())
       const responce = await axios.get(`${URL}/api/NextStudio/portfolio`)
@@ -232,17 +235,20 @@ function AppContent() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }, [dispatch])
+  }, [dispatch, isAdminRoute])
   
   useEffect(() => {
-    if(!portfolioData){
+    if(!portfolioData && !isAdminRoute){
       getPortfolioData()
     }
-  },[portfolioData, getPortfolioData])
+  },[portfolioData, getPortfolioData, isAdminRoute])
 
-  // get all portfolio data length
+  // get all portfolio data length (only for client routes, not admin routes)
 
   const getPortfolioLengthData = useCallback(async () => {
+    // Don't fetch on admin routes
+    if (isAdminRoute) return;
+    
     try{
       dispatch(hiddenloading())
       const responce = await axios.get(`${URL}/api/NextStudio/portfolio/length`)
@@ -252,18 +258,18 @@ function AppContent() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }, [dispatch])
+  }, [dispatch, isAdminRoute])
 
   useEffect(() => {
-    if(!portfolioLengthData){
+    if(!portfolioLengthData && !isAdminRoute){
       getPortfolioLengthData()
     }
-  },[portfolioLengthData, getPortfolioLengthData])
+  },[portfolioLengthData, getPortfolioLengthData, isAdminRoute])
 
-  //get all data when reload
+  //get all data when reload (only for client routes, not admin routes)
 
   useEffect(() => {
-    if(reloadData){
+    if(reloadData && !isAdminRoute){
       getBannerVideo()
       getSlonganData()
       getContactData()
@@ -274,7 +280,7 @@ function AppContent() {
       getPortfolioData()
       getPortfolioLengthData()
     }
-  },[reloadData, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
+  },[reloadData, isAdminRoute, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
 
   return (
     <>

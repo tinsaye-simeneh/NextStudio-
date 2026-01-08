@@ -1,21 +1,94 @@
 import axios from "axios"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { FaTrash, FaPlus } from "react-icons/fa";
 import JoditEditor from "jodit-react";
-import { ReloadData, hiddenloading, showloading } from "../../../API/Server/rootSlice";
+import { ReloadData, hiddenloading, showloading, setPortfolioData, setPortfolioPagination } from "../../../API/Server/rootSlice";
 import { Modal, message } from "antd";
 import { URL } from "../../../Url/Url";
 import Pagination from "./Pagination";
 import { useLocation } from "react-router-dom";
 
-function useQuery() {
-    return new URLSearchParams(useLocation().search)
-}
-
 const AdminPortfolioManagement = () => {
 
-    const { portfolioData } = useSelector((state) => state.root)
+    const { portfolioData, reloadData } = useSelector((state) => state.root)
+    const dispatch = useDispatch()
+    const location = useLocation()
+    const query = useMemo(() => new URLSearchParams(location.search), [location.search])
+    const pageParam = query.get('page')
+    const page = useMemo(() => (pageParam ? Number(pageParam) : 1), [pageParam])
+    const isFetchingRef = useRef(false)
+    const lastPageRef = useRef(null)
+    const previousReloadDataRef = useRef(reloadData)
+
+    // Fetch function
+    const fetchPortfolioData = useCallback(async (pageNum) => {
+        if (isFetchingRef.current) {
+            return
+        }
+        
+        isFetchingRef.current = true
+        lastPageRef.current = pageNum
+        
+        try {
+            dispatch(showloading())
+            const response = await axios.get(`${URL}/api/NextStudio/portfolio?page=${pageNum}`, {
+                validateStatus: function (status) {
+                    return (status >= 200 && status < 300) || status === 304;
+                }
+            })
+            
+            const responseData = response.data?.portfolios || response.data?.portfolio || []
+            const paginationData = response.data?.pagination || null
+            
+            if (responseData.length > 0 || response.status === 304) {
+                dispatch(setPortfolioData(responseData))
+            }
+            
+            // Store pagination data if available
+            if (paginationData) {
+                dispatch(setPortfolioPagination(paginationData))
+            }
+            
+            dispatch(hiddenloading())
+        } catch (error) {
+            dispatch(hiddenloading())
+            if (error.response?.status !== 304) {
+                message.error(error.response?.data?.message || 'Failed to fetch portfolio data')
+            }
+        } finally {
+            isFetchingRef.current = false
+        }
+    }, [dispatch])
+
+    // Single useEffect - handle both page and reloadData
+    useEffect(() => {
+        const pageChanged = lastPageRef.current !== page
+        const reloadDataJustBecameTrue = reloadData && !previousReloadDataRef.current
+        
+        // Only fetch if page changed OR reloadData just became true
+        if (pageChanged || reloadDataJustBecameTrue) {
+            // Update refs BEFORE fetching to prevent duplicate calls
+            if (pageChanged) {
+                lastPageRef.current = page
+            }
+            if (reloadDataJustBecameTrue) {
+                previousReloadDataRef.current = true
+            }
+            
+            // Fetch data
+            fetchPortfolioData(page).then(() => {
+                // Only reset reloadData if it was the trigger
+                if (reloadDataJustBecameTrue) {
+                    dispatch(ReloadData(false))
+                    previousReloadDataRef.current = false
+                }
+            })
+        } else if (!reloadData) {
+            // Reset ref when reloadData becomes false (but don't fetch)
+            previousReloadDataRef.current = false
+        }
+    }, [page, reloadData, dispatch, fetchPortfolioData])
 
     const [showAddEditModal,setShowAddEditModal] = useState(false)
     const [selectedItemforEdit,setSelectedItemforEdit] = useState(null)
@@ -31,10 +104,7 @@ const AdminPortfolioManagement = () => {
     const [preview, setPreview] = useState([])
     const [newPreview,setNewPreview] = useState([])
     const token = localStorage.getItem('token')
-    const dispatch = useDispatch()
-    const editor = useRef(null);
-    const query = useQuery()
-    const page = query.get('page') || 1; 
+    const editor = useRef(null); 
 
     useEffect(() => {
         if(selectedItemforEdit){
@@ -260,22 +330,39 @@ const AdminPortfolioManagement = () => {
                 </div>
                 <hr className="mt-5 mb-5"/>
                 <div className="flex flex-wrap justify-center items-center gap-5">
-                    {portfolioData.map((data) => (
-                        <div className="flex flex-col w-[300px] h-[460px] border-2 rounded-md">
-                            <img className="h-[350px] object-cover rounded-t-md border-b-2 mx-auto w-full" src={data.project_image[0].url} alt="newImage"/>
-                            <h1 className="text-xl h-[50px] ml-2 mr-2 mt-1 font-semibold text-center">{data.project_name}</h1>
-                            <div className="flex mt-2 w-full">
-                                <button className="w-1/2 bg-Secondary rounded-r-none rounded-t-none rounded-md p-3 text-white" onClick={() => {
-                                    setSelectedItemforEdit(data);
-                                    setShowAddEditModal(true)
-                                }}>Update</button>
-                                <button className="w-1/2 bg-red-600 rounded-md rounded-l-none rounded-t-none text-white p-3" onClick={() => {
-                                    setDeleteId(data._id)
-                                    setShowDeleteModal(true)
-                                }}>Delete</button>
+                    {portfolioData && portfolioData.length > 0 ? portfolioData.map((data, index) => {
+                        // Handle project_image - could be array or object
+                        const firstImage = Array.isArray(data.project_image) && data.project_image.length > 0
+                            ? data.project_image[0]
+                            : data.project_image;
+                        const imageUrl = typeof firstImage === 'string' 
+                            ? firstImage 
+                            : firstImage?.url;
+                        const itemId = data.id || data._id;
+                        
+                        return (
+                            <div key={itemId || index} className="flex flex-col w-[300px] h-[460px] border-2 rounded-md">
+                                {imageUrl && (
+                                    <img className="h-[350px] object-cover rounded-t-md border-b-2 mx-auto w-full" src={imageUrl} alt="newImage"/>
+                                )}
+                                <h1 className="text-xl h-[50px] ml-2 mr-2 mt-1 font-semibold text-center">{data.project_name}</h1>
+                                <div className="flex mt-2 w-full">
+                                    <button className="w-1/2 bg-Secondary rounded-r-none rounded-t-none rounded-md p-3 text-white" onClick={() => {
+                                        setSelectedItemforEdit(data);
+                                        setShowAddEditModal(true)
+                                    }}>Update</button>
+                                    <button className="w-1/2 bg-red-600 rounded-md rounded-l-none rounded-t-none text-white p-3" onClick={() => {
+                                        setDeleteId(itemId)
+                                        setShowDeleteModal(true)
+                                    }}>Delete</button>
+                                </div>
                             </div>
+                        )
+                    }) : (
+                        <div className="w-full text-center py-10">
+                            <p className="text-gray-500">No portfolio items found. Click "Add Work" to create one.</p>
                         </div>
-                    ))}
+                    )}
                 </div>
                 <div className="flex justify-center mt-5 ">
                        <Pagination page={page}/>

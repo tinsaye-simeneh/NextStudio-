@@ -6,10 +6,9 @@ import { Tabs, Spin } from "antd"
 import { reset } from "../../API/Auth/authSlice"
 import ScreenError from "./ScreenError"
 import AdminPortfolioManagement from "../Components/Admin Portfolio Components/AdminPortfolioManagement"
-
 const AdminPortfolioPage = () => {
 
-    const { portfolioData, portfolioLengthData, isLoading } = useSelector((state) => state.root)
+    const { portfolioData, isLoading } = useSelector((state) => state.root)
 
     useEffect(() => {
         document.title = "Admin Portfolio Page Management - Next Studio"
@@ -37,7 +36,6 @@ const AdminPortfolioPage = () => {
     const { user } = useSelector((state) => state.auth)
     
     useEffect(() => {
-    
         if (!user) {
           navigate('/administrator')
         }
@@ -45,7 +43,8 @@ const AdminPortfolioPage = () => {
         return () => {
           dispatch(reset())
         }
-      }, [user, navigate, dispatch])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, navigate])
 
     return(
         <div>
@@ -56,7 +55,7 @@ const AdminPortfolioPage = () => {
                         <div className="flex justify-center items-center h-[400px]">
                             <Spin size="large" />
                         </div>
-                    ) : portfolioData && portfolioLengthData ? (
+                    ) : (
                         <Tabs defaultActiveKey="1" items={[
                             {
                                 key: "1",
@@ -64,7 +63,7 @@ const AdminPortfolioPage = () => {
                                 children: <AdminPortfolioManagement/>
                             }
                         ]} />
-                    ) : null}
+                    )}
                 </div>
             </div>}
         </div>
