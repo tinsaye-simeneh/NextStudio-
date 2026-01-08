@@ -71,7 +71,11 @@ const AdminServiceManagement = () => {
             setServiceIcon(selectedItemforEdit.service_icon)
             setServiceTitle(selectedItemforEdit.service_title)
             setServiceDescription(selectedItemforEdit.service_description)
-            setPreview(selectedItemforEdit.service_icon.url)
+            // Handle both string and object formats for service_icon
+            const iconUrl = typeof selectedItemforEdit.service_icon === 'string' 
+                ? selectedItemforEdit.service_icon 
+                : selectedItemforEdit.service_icon?.url;
+            setPreview(iconUrl || '')
         }else{
             setPreview('')
             setServiceTitle('')
@@ -85,15 +89,24 @@ const AdminServiceManagement = () => {
         <div>
             <div className="flex flex-col">
                 <div className="flex flex-wrap justify-center items-center gap-10">
-                    {serviceData.map((data) => (
-                        <div className="w-[285px] h-[385px] border-2 rounded-md">
-                            <img className=" border-b-2 rounded-md" src={data.service_icon.url} alt="services icon"/>
-                            <h1 className="text-lg mt-5 font-bold text-center">{data.service_title}</h1>
-                            <button className="w-full p-2 rounded-md mt-3 text-white rounded-t-none bg-Secondary" onClick={() => {
-                                setSelectedItemforEdit(data)
-                                setShowAddEditModal(true)}}>Update</button>
-                        </div>
-                    ))}
+                    {serviceData && serviceData.length > 0 && serviceData.map((data, index) => {
+                        // Handle both string and object formats for service_icon
+                        const iconUrl = typeof data.service_icon === 'string' 
+                            ? data.service_icon 
+                            : data.service_icon?.url;
+                        
+                        return (
+                            <div key={data._id || index} className="w-[285px] h-[385px] border-2 rounded-md">
+                                {iconUrl && (
+                                    <img className=" border-b-2 rounded-md" src={iconUrl} alt="services icon"/>
+                                )}
+                                <h1 className="text-lg mt-5 font-bold text-center">{data.service_title}</h1>
+                                <button className="w-full p-2 rounded-md mt-3 text-white rounded-t-none bg-Secondary" onClick={() => {
+                                    setSelectedItemforEdit(data)
+                                    setShowAddEditModal(true)}}>Update</button>
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
             <Modal visible={showAddEditModal}  footer={null} onCancel={() => {setShowAddEditModal(false); setSelectedItemforEdit(null)}}>
