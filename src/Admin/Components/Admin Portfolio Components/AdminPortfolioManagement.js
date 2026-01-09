@@ -63,13 +63,22 @@ const AdminPortfolioManagement = () => {
 
     // Single useEffect - handle both page and reloadData
     useEffect(() => {
-        const pageChanged = lastPageRef.current !== page
+        // Skip if already fetching
+        if (isFetchingRef.current) {
+            return
+        }
+
+        const pageChanged = lastPageRef.current !== page && lastPageRef.current !== null
         const reloadDataJustBecameTrue = reloadData && !previousReloadDataRef.current
+        const isInitialLoad = lastPageRef.current === null
         
-        // Only fetch if page changed OR reloadData just became true
-        if (pageChanged || reloadDataJustBecameTrue) {
+        // Only fetch if:
+        // 1. Initial load (first time)
+        // 2. Page changed (and we've loaded at least once)
+        // 3. ReloadData just became true
+        if (isInitialLoad || pageChanged || reloadDataJustBecameTrue) {
             // Update refs BEFORE fetching to prevent duplicate calls
-            if (pageChanged) {
+            if (isInitialLoad || pageChanged) {
                 lastPageRef.current = page
             }
             if (reloadDataJustBecameTrue) {
@@ -88,7 +97,8 @@ const AdminPortfolioManagement = () => {
             // Reset ref when reloadData becomes false (but don't fetch)
             previousReloadDataRef.current = false
         }
-    }, [page, reloadData, dispatch, fetchPortfolioData])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, reloadData])
 
     const [showAddEditModal,setShowAddEditModal] = useState(false)
     const [selectedItemforEdit,setSelectedItemforEdit] = useState(null)
