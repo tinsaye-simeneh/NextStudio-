@@ -5,9 +5,14 @@ const { createClient } = require('@supabase/supabase-js')
 // Use service role for migration (bypasses RLS)
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const mongoDbUri = process.env.MONGODB_URI
 
 if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase service role credentials')
+}
+
+if (!mongoDbUri) {
+    throw new Error('Missing MongoDB URI environment variable')
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -15,7 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 async function exportFromMongoDB() {
     try {
         // Connect to MongoDB
-        await mongoose.connect('mongodb+srv://cgetenet:PassMeNext2024@cluster0.lcpzehj.mongodb.net/?retryWrites=true&w=majority')
+        await mongoose.connect(mongoDbUri)
         console.log('✅ Connected to MongoDB')
 
         // Export each collection
