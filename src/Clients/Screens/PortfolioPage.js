@@ -16,7 +16,9 @@ const PortfolioPage = () => {
     return(
         <div>
             <PortfolioNavbar/>
-            <AllPortfolio/>
+            <div className="pt-[80px]">
+                <AllPortfolio/>
+            </div>
             <ScrollToTop smooth top="20" color="white" style={{
                 backgroundColor: "#EF5B2C",
                 width: "40px",

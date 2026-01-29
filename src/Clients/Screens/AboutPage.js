@@ -20,7 +20,9 @@ const AboutPage = () => {
     return(
         <div>
             <AboutNavbar/>
-            <AboutIntro/>
+            <div className="pt-[80px]">
+                <AboutIntro/>
+            </div>
             <AboutContent/>
             <ClientList/>
             <OurTeam/>

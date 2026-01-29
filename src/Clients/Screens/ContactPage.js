@@ -21,7 +21,9 @@ const ContactPage = () => {
     return(
         <div>
             <ContactNavbar/>
-            <NextMap/>
+            <div className="pt-[80px]">
+                <NextMap/>
+            </div>
             <NextContactInfo/>
             <ContactForm/>
             <ApplyForm/>

@@ -20,7 +20,9 @@ const HomePage = () => {
     return(
         <div>
             <MainNavbar/>
-            <VideoBanner/>
+            <div className="pt-[80px]">
+                <VideoBanner/>
+            </div>
             <Slogan/>
             <Service/>
             <RecentPortfolio/>

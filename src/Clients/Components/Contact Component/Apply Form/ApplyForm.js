@@ -19,16 +19,17 @@ const ApplyForm = () => {
   const handleFileInputChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      const reader = new FileReader();
-      reader.readAsDataURL(selectedFile);
-      reader.onloadend = () => {
-        setFile(reader.result);
-      };
+      setFile(selectedFile);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !email || !phonenumber || !messages) {
+      message.error('Please fill in all required fields');
+      return;
+    }
 
     dispatch(showloading());
 
@@ -37,7 +38,9 @@ const ApplyForm = () => {
     formData.append('email', email);
     formData.append('phonenumber', phonenumber);
     formData.append('messages', messages);
-    formData.append('file', file);
+    if (file) {
+      formData.append('file', file);
+    }
 
     try {
       const { data } = await axios.post(`${URL}/api/NextStudio/contact/apply`, formData, {
@@ -78,7 +81,7 @@ const ApplyForm = () => {
         </div>
         <button className="cbutton w-[100px]" onClick={() => { setShowAddEditModal(true) }}>Apply Form</button>
       </div>
-      <Modal visible={showAddEditModal} width="60%" footer={null} onCancel={() => { setShowAddEditModal(false) }} maskClosable={false} keyboard={false}>
+      <Modal open={showAddEditModal} width="60%" footer={null} onCancel={() => { setShowAddEditModal(false); setName(''); setEmail(''); setPhoneNumber(''); setMessages(''); setFile(null); }} maskClosable={false} keyboard={false}>
         <div className="flex flex-col gap-2 justify-center items-center">
           <br />
           <h1 className="text-2xl font-semibold uppercase">Apply Form</h1>

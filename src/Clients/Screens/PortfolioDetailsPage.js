@@ -70,7 +70,9 @@ const PortfolioDetailsPage = () => {
     return (
         <div>
             <PortfolioNavbar/>
-            <PortfolioIntro portfolioData={portfolioData}/>
+            <div className="pt-[80px]">
+                <PortfolioIntro portfolioData={portfolioData}/>
+            </div>
             <div className="w-full px-10 py-5 s3m:flex-col justify-center pds:gap-5 flex s3m:gap-5 mx-auto gap-10">
                 <div className="s3m:w-full w-1/2">
                     <PortfolioContent1 portfolioData={portfolioData}/>

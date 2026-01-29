@@ -25,16 +25,19 @@ const Paginate = ({page}) => {
         }
       }
 
-      const total = portfolioLengthData.length
-      const limit = 6
-
-      const numberOfPage = Math.ceil(total/limit)
-
     useEffect(() => {
         if(page || !portfolioData){
             getPortfolioData(page)
         }
     },[page])
+
+    if (!portfolioLengthData || !Array.isArray(portfolioLengthData)) {
+        return null;
+    }
+
+    const total = portfolioLengthData.length
+    const limit = 6
+    const numberOfPage = Math.ceil(total/limit)
 
     return(
         <Pagination

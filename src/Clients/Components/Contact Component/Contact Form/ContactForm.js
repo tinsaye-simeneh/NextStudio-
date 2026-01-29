@@ -16,6 +16,7 @@ const ContactForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
     
+        try {
             dispatch(showloading())
             
             const {data} = await axios.post(`${URL}/api/NextStudio/contact/send-mail`, {
@@ -23,7 +24,7 @@ const ContactForm = () => {
             });
     
             if(data.success === true){
-                dispatch(showloading())
+                dispatch(hiddenloading())
                 Swal.fire({
                     position: 'center',
                     icon: 'success',
@@ -35,9 +36,27 @@ const ContactForm = () => {
                 setEmail('')
                 setMessages('')
                 dispatch(ReloadData(true))
+            } else {
                 dispatch(hiddenloading())
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: 'Failed to send message. Please try again.',
+                    showConfirmButton: false,
+                    timer: 2000
+                  })
             }
-       
+        } catch (error) {
+            dispatch(hiddenloading())
+            console.error('Error submitting contact form:', error);
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Failed to send message. Please try again.',
+                showConfirmButton: false,
+                timer: 2000
+              })
+        }
       };
     return(
         <div className='mt-16 md:mt-4 flex justify-center items-center'>
