@@ -4,6 +4,7 @@ import {
     FaBriefcase,
     FaSignOutAlt,
     FaAddressBook,
+    FaIdCard,
 }from "react-icons/fa";
 import {IoIosSettings} from 'react-icons/io'
 import { useDispatch } from 'react-redux';
@@ -31,6 +32,11 @@ const Sidebar = () => {
             path:"/admindashboard/portfolios",
             name:"Portfolio Page",
             icon:<FaBriefcase/>
+        },
+        {
+            path:"/admindashboard/cards",
+            name:"Digital Cards",
+            icon:<FaIdCard/>
         },
         {
             path:"/admindashboard/contact",

@@ -12,6 +12,7 @@ import AdminAboutPage from './Admin/Screens/AdminAboutPage';
 import AdminPortfolioPage from './Admin/Screens/AdminPortfolioPage';
 import AdminContactPage from './Admin/Screens/AdminContactPage';
 import AdminSettingPage from './Admin/Screens/AdminSettingPage';
+import AdminCardsPage from './Admin/Screens/AdminCardsPage';
 import {
   showloading,
   setVideoBannerData,
@@ -32,10 +33,13 @@ import { useEffect, useCallback } from 'react';
 import {URL} from './Url/Url'
 import LoadingPage from './Clients/Screens/LoadingPage';
 import MMEPage from './Clients/Screens/MMEPage';
+import CardDetailsPage from './Clients/Screens/CardDetailsPage';
 
 function AppContent() {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admindashboard') || location.pathname.startsWith('/administrator')
+  const isCardRoute = location.pathname.startsWith('/cards/')
+  const isStandaloneRoute = isAdminRoute || isCardRoute
 
   var hours = 12
   var now  = new Date().getTime()
@@ -223,8 +227,8 @@ function AppContent() {
   // get all portfolio data (only for client routes, not admin routes)
 
   const getPortfolioData = useCallback(async () => {
-    // Don't fetch on admin routes
-    if (isAdminRoute) return;
+    // Don't fetch on admin or card routes
+    if (isStandaloneRoute) return;
     
     try{
       dispatch(hiddenloading())
@@ -235,19 +239,19 @@ function AppContent() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }, [dispatch, isAdminRoute])
+  }, [dispatch, isStandaloneRoute])
   
   useEffect(() => {
-    if(!portfolioData && !isAdminRoute){
+    if(!portfolioData && !isStandaloneRoute){
       getPortfolioData()
     }
-  },[portfolioData, getPortfolioData, isAdminRoute])
+  },[portfolioData, getPortfolioData, isStandaloneRoute])
 
   // get all portfolio data length (only for client routes, not admin routes)
 
   const getPortfolioLengthData = useCallback(async () => {
-    // Don't fetch on admin routes
-    if (isAdminRoute) return;
+    // Don't fetch on admin or card routes
+    if (isStandaloneRoute) return;
     
     try{
       dispatch(hiddenloading())
@@ -258,18 +262,18 @@ function AppContent() {
     }catch(err){
       dispatch(hiddenloading())
     }
-  }, [dispatch, isAdminRoute])
+  }, [dispatch, isStandaloneRoute])
 
   useEffect(() => {
-    if(!portfolioLengthData && !isAdminRoute){
+    if(!portfolioLengthData && !isStandaloneRoute){
       getPortfolioLengthData()
     }
-  },[portfolioLengthData, getPortfolioLengthData, isAdminRoute])
+  },[portfolioLengthData, getPortfolioLengthData, isStandaloneRoute])
 
   //get all data when reload (only for client routes, not admin routes)
 
   useEffect(() => {
-    if(reloadData && !isAdminRoute){
+    if(reloadData && !isStandaloneRoute){
       getBannerVideo()
       getSlonganData()
       getContactData()
@@ -280,11 +284,11 @@ function AppContent() {
       getPortfolioData()
       getPortfolioLengthData()
     }
-  },[reloadData, isAdminRoute, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
+  },[reloadData, isStandaloneRoute, getAboutData, getBannerVideo, getClientData, getContactData, getPortfolioData, getPortfolioLengthData, getServiceData, getSlonganData, getTeamData])
 
   return (
     <>
-      {isLoading && !isAdminRoute ? <LoadingPage/> : null}
+      {isLoading && !isStandaloneRoute ? <LoadingPage/> : null}
       <div className="App">
         <Routes>
           <Route exact path='/' element={<HomePage/>}/>
@@ -293,10 +297,12 @@ function AppContent() {
           <Route path='portfolios/:id' element={<PortfolioDetailsPage/>}/>
           <Route path='contact' element={<ContactPage/>}/>
           <Route path='mme' element={<MMEPage/>}/>
+          <Route path='cards/:slug' element={<CardDetailsPage/>}/>
           <Route path='administrator' element={<AdminLoginPage/>}/>
           <Route path='admindashboard/home' element={<AdminHomePage/>}/>
           <Route path='admindashboard/about' element={<AdminAboutPage/>}/>
           <Route path='admindashboard/portfolios' element={<AdminPortfolioPage/>}/>
+          <Route path='admindashboard/cards' element={<AdminCardsPage/>}/>
           <Route path='admindashboard/contact' element={<AdminContactPage/>}/>
           <Route path='admindashboard/setting' element={<AdminSettingPage/>}/>
           <Route path='*' element={<PageNotFound/>}/>

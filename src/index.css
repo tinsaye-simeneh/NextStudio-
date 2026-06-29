@@ -315,3 +315,58 @@ visibility: hidden !important;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   z-index: 9999;
 }
+
+/* Card page mobile fixes */
+.card-inquiry-form .cinput,
+.card-inquiry-form .ctextarea,
+.card-inquiry-form .cbutton {
+  margin-right: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.card-phone-input .PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.card-phone-input .PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.card-phone-input .PhoneInputCountry {
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.card-scroll-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.card-scroll-content::-webkit-scrollbar {
+  display: none;
+}
+
+.card-page {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.card-section {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}

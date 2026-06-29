@@ -1,0 +1,234 @@
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
+import { URL } from "../../Url/Url";
+import CardPasswordGate from "../Components/Card Component/CardPasswordGate";
+import CardHeader from "../Components/Card Component/CardHeader";
+import CardHero from "../Components/Card Component/CardHero";
+import CardServices from "../Components/Card Component/CardServices";
+import CardGallery from "../Components/Card Component/CardGallery";
+import CardProducts from "../Components/Card Component/CardProducts";
+import CardBusinessHours from "../Components/Card Component/CardBusinessHours";
+import CardInquiryForm from "../Components/Card Component/CardInquiryForm";
+import CardActions from "../Components/Card Component/CardActions";
+import CardFloatingSocial from "../Components/Card Component/CardFloatingSocial";
+import {
+  getCardName,
+  getCardType,
+  getResolvedThemeColors,
+  getThemePageBackground,
+  getThemeTopBarBackground,
+} from "../Components/Card Component/cardUtils";
+import { getMockCardBySlug } from "../Components/Card Component/mockCardData";
+
+const CardSection = ({ children }) => {
+  if (!children) return null;
+  return <>{children}</>;
+};
+
+const CardFooter = ({ colors }) => (
+  <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
+    Powered by{" "}
+    <Link
+      to="/"
+      className="font-medium text-slate-600 transition hover:opacity-80"
+      style={{ color: colors?.primary }}
+    >
+      Next Studio
+    </Link>
+  </footer>
+);
+
+const CardDetailsPage = () => {
+  const { slug } = useParams();
+  const printRef = useRef(null);
+  const [card, setCard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [password, setPassword] = useState(null);
+  const [needsPassword, setNeedsPassword] = useState(false);
+
+  useEffect(() => {
+    const fetchCard = async () => {
+      setLoading(true);
+      setNotFound(false);
+
+      try {
+        const headers = password ? { "x-card-password": password } : {};
+        const response = await axios.get(`${URL}/api/NextStudio/cards/${slug}`, {
+          headers,
+        });
+
+        const cardData = response.data?.card;
+        if (!cardData) {
+          throw new Error("Card not found");
+        }
+
+        setCard(cardData);
+        setNeedsPassword(false);
+        document.title = `${getCardName(cardData)} | Digital Card`;
+      } catch (err) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          setNeedsPassword(true);
+          setCard(null);
+        } else {
+          const mockCard = getMockCardBySlug(slug);
+          if (mockCard) {
+            setCard(mockCard);
+            setNeedsPassword(false);
+            document.title = `${getCardName(mockCard)} | Digital Card`;
+          } else {
+            setNotFound(true);
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (slug) {
+      fetchCard();
+      window.scrollTo(0, 0);
+    }
+  }, [slug, password]);
+
+  if (loading) {
+    const colors = getResolvedThemeColors({});
+    return (
+      <div className="card-page min-h-screen bg-slate-100">
+        <CardHeader colors={colors} />
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="mx-auto h-64 max-w-xl rounded-2xl bg-slate-200 sm:h-72" />
+            <div className="h-40 rounded-2xl bg-slate-200 sm:h-48" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (needsPassword) {
+    const theme = getResolvedThemeColors(getMockCardBySlug(slug) || {});
+    return (
+      <CardPasswordGate
+        slug={slug}
+        primaryColor={theme.primary}
+        onVerified={(verifiedPassword) => setPassword(verifiedPassword)}
+      />
+    );
+  }
+
+  if (notFound || !card) {
+    const colors = getResolvedThemeColors({});
+    return (
+      <div className="card-page min-h-screen bg-slate-100">
+        <CardHeader colors={colors} />
+        <div className="flex min-h-[70vh] items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl sm:rounded-3xl sm:p-10">
+            <h1 className="text-xl font-bold text-slate-800 sm:text-2xl">Card Not Found</h1>
+            <p className="mt-2 text-sm text-slate-500 sm:text-base">
+              No card exists for &ldquo;{slug}&rdquo;.
+            </p>
+            <Link
+              to="/"
+              className="mt-6 inline-block rounded-xl px-6 py-3 text-sm font-medium text-white"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const cardType = getCardType(card);
+  const isPersonal = cardType === "personal";
+  const cardName = getCardName(card);
+  const colors = getResolvedThemeColors(card);
+
+  const optionalSections = (
+    <>
+      <CardSection>
+        {card.services?.length > 0 && (
+          <CardServices services={card.services} colors={colors} cardType={cardType} />
+        )}
+      </CardSection>
+      <CardSection>
+        {card.gallery?.length > 0 && (
+          <CardGallery gallery={card.gallery} colors={colors} />
+        )}
+      </CardSection>
+      <CardSection>
+        {card.products?.length > 0 && (
+          <CardProducts products={card.products} colors={colors} />
+        )}
+      </CardSection>
+      <CardSection>
+        {card.business_hours?.length > 0 && (
+          <CardBusinessHours businessHours={card.business_hours} colors={colors} />
+        )}
+      </CardSection>
+      <CardInquiryForm slug={card.slug} colors={colors} recipientName={cardName} />
+    </>
+  );
+
+  const pageShellClass =
+    "card-page min-h-screen overflow-x-hidden pb-10 sm:pb-28";
+
+  if (isPersonal) {
+    return (
+      <div
+        className={pageShellClass}
+        style={{ fontFamily: "Poppins, sans-serif", ...getThemePageBackground(colors) }}
+      >
+        <div className="h-1 w-full" style={getThemeTopBarBackground(colors)} />
+        <CardHeader colors={colors} />
+        <div ref={printRef} className="mx-auto w-full max-w-xl px-3 py-5 sm:px-4 sm:py-8">
+          <div className="space-y-4 sm:space-y-6">
+            <CardHero card={card} colors={colors} />
+            {optionalSections}
+            <CardActions card={card} colors={colors} printRef={printRef} />
+            <CardFooter colors={colors} />
+          </div>
+        </div>
+        <CardFloatingSocial card={card} colors={colors} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={pageShellClass}
+      style={{ fontFamily: "Poppins, sans-serif", ...getThemePageBackground(colors) }}
+    >
+      <div className="h-1 w-full" style={getThemeTopBarBackground(colors)} />
+      <CardHeader colors={colors} />
+
+      <div ref={printRef} className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">
+        <div className="flex flex-row items-start gap-8 s3m:flex-col s3m:gap-4">
+          <aside className="sticky top-[57px] w-[360px] shrink-0 self-start s3m:static s3m:w-full">
+            <div className="space-y-4 sm:space-y-6">
+              <CardHero card={card} colors={colors} />
+              <div className="s3m:hidden">
+                <CardActions card={card} colors={colors} printRef={printRef} />
+              </div>
+            </div>
+          </aside>
+
+          <main className="min-w-0 w-full flex-1 space-y-4 sm:space-y-6">
+            {optionalSections}
+            <div className="hidden s3m:block">
+              <CardActions card={card} colors={colors} printRef={printRef} />
+            </div>
+            <CardFooter colors={colors} />
+          </main>
+        </div>
+      </div>
+
+      <CardFloatingSocial card={card} colors={colors} />
+    </div>
+  );
+};
+
+export default CardDetailsPage;
