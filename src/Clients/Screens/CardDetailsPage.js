@@ -68,7 +68,14 @@ const CardDetailsPage = () => {
         setNeedsPassword(false);
         document.title = `${getCardName(cardData)} | Digital Card`;
       } catch (err) {
-        if (err.response?.status === 401 || err.response?.status === 403) {
+        const status = err.response?.status;
+        const apiMessage = err.response?.data?.message || "";
+
+        // 401 = password required; 403 = wrong password when header was sent
+        if (
+          status === 401 ||
+          (status === 403 && apiMessage.toLowerCase().includes("invalid password"))
+        ) {
           setNeedsPassword(true);
           setCard(null);
         } else {
@@ -148,8 +155,7 @@ const CardDetailsPage = () => {
     </>
   );
 
-  const pageShellClass =
-    "card-page min-h-screen overflow-x-hidden pb-10 sm:pb-28";
+  const pageShellClass = "card-page min-h-screen pb-10 sm:pb-28";
 
   if (isPersonal) {
     return (
@@ -182,7 +188,7 @@ const CardDetailsPage = () => {
 
       <div ref={printRef} className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">
         <div className="flex flex-row items-start gap-8 s3m:flex-col s3m:gap-4">
-          <aside className="sticky top-[57px] w-[360px] shrink-0 self-start s3m:static s3m:w-full">
+          <aside className="sticky top-[49px] z-10 w-[360px] shrink-0 self-start s3m:static s3m:w-full">
             <div className="space-y-4 sm:space-y-6">
               <CardHero card={card} colors={colors} />
               <div className="s3m:hidden">
@@ -191,7 +197,7 @@ const CardDetailsPage = () => {
             </div>
           </aside>
 
-          <main className="min-w-0 w-full flex-1 space-y-4 sm:space-y-6">
+          <main className="min-w-0 w-full flex-1 space-y-4 overflow-x-hidden sm:space-y-6">
             {optionalSections}
             <div className="hidden s3m:block">
               <CardActions card={card} colors={colors} printRef={printRef} />

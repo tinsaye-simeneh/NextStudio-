@@ -3,6 +3,7 @@ import { message, Modal, Spin, Tabs } from "antd";
 import axios from "axios";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { URL } from "../../../Url/Url";
+import { getAdminAuthConfig } from "../../../API/adminAuth";
 import {
   createDefaultBusinessHours,
   createEmptyCard,
@@ -14,10 +15,6 @@ import {
   SOCIAL_PLATFORMS,
   normalizeSocialLinks,
 } from "../../../Clients/Components/Card Component/cardUtils";
-
-const authConfig = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-});
 
 const AdminCardManagement = () => {
   const [cards, setCards] = useState([]);
@@ -33,7 +30,7 @@ const AdminCardManagement = () => {
   const fetchCards = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${URL}/api/NextStudio/cards`);
+      const { data } = await axios.get(`${URL}/api/NextStudio/cards`, getAdminAuthConfig());
       setCards(data.cards || []);
     } catch (err) {
       message.error(err.response?.data?.message || "Failed to load cards");
@@ -178,7 +175,7 @@ const AdminCardManagement = () => {
         const { data } = await axios.patch(
           `${URL}/api/NextStudio/cards/${cardId}`,
           payload,
-          authConfig()
+          getAdminAuthConfig()
         );
         if (data.success !== false) {
           message.success("Card updated successfully");
@@ -189,7 +186,7 @@ const AdminCardManagement = () => {
         const { data } = await axios.post(
           `${URL}/api/NextStudio/cards`,
           payload,
-          authConfig()
+          getAdminAuthConfig()
         );
         if (data.success !== false) {
           message.success("Card created successfully");
@@ -208,9 +205,10 @@ const AdminCardManagement = () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
+      const config = getAdminAuthConfig();
       const { data } = await axios.delete(
         `${URL}/api/NextStudio/cards/${deleteId}`,
-        authConfig()
+        config
       );
       if (data.success !== false) {
         message.success("Card deleted successfully");
@@ -336,12 +334,46 @@ const AdminCardManagement = () => {
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className={labelClass}>Primary Color</label>
-          <input className={inputClass} type="color" value={formData.theme.primary_color} onChange={(e) => updateTheme("primary_color", e.target.value)} />
+          <div className="flex items-center gap-3 rounded border border-slate-200 bg-slate-50 p-3">
+            <div
+              className="h-12 w-12 shrink-0 rounded-lg border border-slate-200 shadow-sm"
+              style={{ backgroundColor: formData.theme.primary_color }}
+              title={formData.theme.primary_color}
+            />
+            <div className="min-w-0 flex-1">
+              <input
+                className="h-10 w-full cursor-pointer rounded border border-slate-200 bg-white p-1"
+                type="color"
+                value={formData.theme.primary_color}
+                onChange={(e) => updateTheme("primary_color", e.target.value)}
+              />
+              <p className="mt-1 font-mono text-sm uppercase text-slate-600">
+                {formData.theme.primary_color}
+              </p>
+            </div>
+          </div>
           <p className="text-xs text-gray-500">Saved to backend and used across the card page</p>
         </div>
         <div className="flex flex-col gap-2">
           <label className={labelClass}>Secondary Color</label>
-          <input className={inputClass} type="color" value={formData.theme.secondary_color} onChange={(e) => updateTheme("secondary_color", e.target.value)} />
+          <div className="flex items-center gap-3 rounded border border-slate-200 bg-slate-50 p-3">
+            <div
+              className="h-12 w-12 shrink-0 rounded-lg border border-slate-200 shadow-sm"
+              style={{ backgroundColor: formData.theme.secondary_color }}
+              title={formData.theme.secondary_color}
+            />
+            <div className="min-w-0 flex-1">
+              <input
+                className="h-10 w-full cursor-pointer rounded border border-slate-200 bg-white p-1"
+                type="color"
+                value={formData.theme.secondary_color}
+                onChange={(e) => updateTheme("secondary_color", e.target.value)}
+              />
+              <p className="mt-1 font-mono text-sm uppercase text-slate-600">
+                {formData.theme.secondary_color}
+              </p>
+            </div>
+          </div>
           <p className="text-xs text-gray-500">Hero gradient, buttons, and accents</p>
         </div>
       </div>
@@ -551,6 +583,8 @@ const AdminCardManagement = () => {
         footer={null}
         width={900}
         closable={!saving}
+        maskClosable={false}
+        keyboard={false}
         onCancel={() => !saving && setShowModal(false)}
         destroyOnClose
       >

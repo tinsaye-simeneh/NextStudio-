@@ -362,7 +362,6 @@ visibility: hidden !important;
 .card-page {
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
 }
 
 .card-section {
