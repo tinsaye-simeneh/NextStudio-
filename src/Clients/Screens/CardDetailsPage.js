@@ -12,6 +12,7 @@ import CardBusinessHours from "../Components/Card Component/CardBusinessHours";
 import CardInquiryForm from "../Components/Card Component/CardInquiryForm";
 import CardActions from "../Components/Card Component/CardActions";
 import CardFloatingSocial from "../Components/Card Component/CardFloatingSocial";
+import CardNotFound from "../Components/Card Component/CardNotFound";
 import {
   getCardName,
   getCardType,
@@ -19,7 +20,6 @@ import {
   getThemePageBackground,
   getThemeTopBarBackground,
 } from "../Components/Card Component/cardUtils";
-import { getMockCardBySlug } from "../Components/Card Component/mockCardData";
 
 const CardSection = ({ children }) => {
   if (!children) return null;
@@ -72,14 +72,9 @@ const CardDetailsPage = () => {
           setNeedsPassword(true);
           setCard(null);
         } else {
-          const mockCard = getMockCardBySlug(slug);
-          if (mockCard) {
-            setCard(mockCard);
-            setNeedsPassword(false);
-            document.title = `${getCardName(mockCard)} | Digital Card`;
-          } else {
-            setNotFound(true);
-          }
+          setNotFound(true);
+          setCard(null);
+          document.title = "Card Not Found | Next Studio";
         }
       } finally {
         setLoading(false);
@@ -108,7 +103,7 @@ const CardDetailsPage = () => {
   }
 
   if (needsPassword) {
-    const theme = getResolvedThemeColors(getMockCardBySlug(slug) || {});
+    const theme = getResolvedThemeColors({});
     return (
       <CardPasswordGate
         slug={slug}
@@ -119,27 +114,7 @@ const CardDetailsPage = () => {
   }
 
   if (notFound || !card) {
-    const colors = getResolvedThemeColors({});
-    return (
-      <div className="card-page min-h-screen bg-slate-100">
-        <CardHeader colors={colors} />
-        <div className="flex min-h-[70vh] items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl sm:rounded-3xl sm:p-10">
-            <h1 className="text-xl font-bold text-slate-800 sm:text-2xl">Card Not Found</h1>
-            <p className="mt-2 text-sm text-slate-500 sm:text-base">
-              No card exists for &ldquo;{slug}&rdquo;.
-            </p>
-            <Link
-              to="/"
-              className="mt-6 inline-block rounded-xl px-6 py-3 text-sm font-medium text-white"
-              style={{ backgroundColor: colors.primary }}
-            >
-              Back to Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <CardNotFound slug={slug} />;
   }
 
   const cardType = getCardType(card);
