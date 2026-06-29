@@ -9,6 +9,7 @@ const AboutRouter = require('./AboutRouter')
 const ClientRouter = require('./ClientRouter')
 const TeamRouter = require('./TeamRouter')
 const PortfolioRouter = require('./PortfolioRouter')
+const CardRouter = require('./CardRouter')
 
 const router = express.Router()
 
@@ -22,5 +23,6 @@ router.use('/about', AboutRouter)
 router.use('/client', ClientRouter)
 router.use('/team', TeamRouter)
 router.use('/portfolio', PortfolioRouter)
+router.use('/cards', CardRouter)
 
 module.exports = router

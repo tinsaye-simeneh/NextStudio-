@@ -11,6 +11,7 @@ const ClientModel = require('./ClientModel')
 const QuoteModel = require('./QuoteModel')
 const VideoModel = require('./VideoModel')
 const UserModel = require('./UserModel')
+const CardModel = require('./CardModel')
 
 // Export initialized model instances
 module.exports = {
@@ -23,7 +24,8 @@ module.exports = {
     Client: new ClientModel(supabase),
     Quote: new QuoteModel(supabase),
     Video: new VideoModel(supabase),
-    User: new UserModel(supabase)
+    User: new UserModel(supabase),
+    Card: new CardModel(supabase)
 }
 
 
